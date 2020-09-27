@@ -1,5 +1,9 @@
-usuario            |nombre                        |apellido                      |password                                |rol|fecha_nacimiento|correo_alterno                          |telefono |path                                                                                                                                                                                                    |estatus
-josedeleon         |José                          |De León                       |password123                             |1  |09/09/2000      |jose.dlj15@gmail.com                    |41091654 |C:\Users\José De León\Pictures\testmeia.jpg                                                                                                                                                             |1      
-josedeleon777      |José                          |De León                       |password123                             |1  |09/09/2000      |jose.dlj15@gmail.com                    |41091654 |C:\Users\José De León\Pictures\testmeia.jpg                                                                                                                                                             |1      
-josedeleon         |José                          |De León                       |password123                             |1  |09/09/2000      |jose.dlj15@gmail.com                    |41091654 |C:\Users\José De León\Pictures\testmeia.jpg                                                                                                                                                             |1      
-
+nombre_simbolico:                        
+fecha_creacion:                          
+usuario_creacion:                        
+fecha_modificacion:                      
+usuario_modificacion:                    
+#_registros:                             
+registros_activos:                       
+registros_inactivos:                     
+max_reorganizacion:                      

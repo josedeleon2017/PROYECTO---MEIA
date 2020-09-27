@@ -5,10 +5,14 @@
  */
 package proyecto.meia;
 
+import java.awt.Image;
 import java.io.*;
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  *
@@ -45,7 +49,7 @@ public class Login extends javax.swing.JFrame {
 
         lbl_password.setText("Password");
 
-        lbl_login.setFont(new java.awt.Font("Century Gothic", 1, 18)); // NOI18N
+        lbl_login.setFont(new java.awt.Font("Century Gothic", 1, 24)); // NOI18N
         lbl_login.setText("LOGIN");
 
         btn_Entrar.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
@@ -92,7 +96,7 @@ public class Login extends javax.swing.JFrame {
                 .addComponent(txt_password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28)
                 .addComponent(btn_Entrar)
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
 
         pack();
@@ -120,7 +124,8 @@ public class Login extends javax.swing.JFrame {
         }
         else
         {
-            //Valida si existe en bitacora_usuario        
+        
+        //Valida si existe en bitacora_usuario        
         File file_bitacora = new File("MEIA\\bitacora_usuario.txt");
         String path_bitacora = file_bitacora.getAbsolutePath();
         String[] registro_bitacora = ObtenerUser(usuario, path_bitacora, "Error");
@@ -132,7 +137,12 @@ public class Login extends javax.swing.JFrame {
                     abrir_inicio.lbl_usuario.setText(registro_bitacora[0]);
                     String rol = "Usuario";
                     if(registro_bitacora[4].trim().equals("1")) rol = "Administrador";
-                    abrir_inicio.lbl_rol.setText(rol);
+                    abrir_inicio.lbl_rol.setText(rol);        
+                    
+                    ImageIcon photo = new ImageIcon(registro_bitacora[8]);
+                    Icon img = new ImageIcon(photo.getImage().getScaledInstance(abrir_inicio.lbl_photo.getWidth(), abrir_inicio.lbl_photo.getHeight(), Image.SCALE_DEFAULT));
+                    abrir_inicio.lbl_photo.setIcon(img);
+                    
                     abrir_inicio.show();
                     this.setVisible(false);                   
                 }
@@ -153,7 +163,12 @@ public class Login extends javax.swing.JFrame {
                     abrir_inicio.lbl_usuario.setText(registro_usuario[0]);
                     String rol = "Usuario";
                     if(registro_usuario[4].trim().equals("1")) rol = "Administrador";
-                    abrir_inicio.lbl_rol.setText(rol);
+                    abrir_inicio.lbl_rol.setText(rol);     
+                    
+                    ImageIcon photo = new ImageIcon(registro_usuario[8]);
+                    Icon img = new ImageIcon(photo.getImage().getScaledInstance(abrir_inicio.lbl_photo.getWidth(), abrir_inicio.lbl_photo.getHeight(), Image.SCALE_DEFAULT));
+                    abrir_inicio.lbl_photo.setIcon(img);
+                    
                     abrir_inicio.show();
                     this.setVisible(false);                   
                 }
@@ -164,7 +179,7 @@ public class Login extends javax.swing.JFrame {
         
         //Valida si el archivo esta vacío
         if(EstaVacio(path_bitacora, "Error") && EstaVacio(path_usuario, "Error")){
-            int confirmacion = JOptionPane.showConfirmDialog(null, "¿Desea crear el usuario?");
+            int confirmacion = JOptionPane.showConfirmDialog(null, "<html>El usuario no existe<p>¿Desea crearlo?<html>");
             if(confirmacion == 0){
                 Registro registrar_admin = new Registro();
             registrar_admin.show();
@@ -176,17 +191,22 @@ public class Login extends javax.swing.JFrame {
         }
         else
         {
-            int confirmacion = JOptionPane.showConfirmDialog(null, "¿Desea crear el usuario?");
-            if(confirmacion == 0){
-                if(registro_usuario == null && registro_bitacora == null){
-                 Registro registrar_admin = new Registro();
-                registrar_admin.show();
-                registrar_admin.txt_usuario.setText(usuario);
-                registrar_admin.txt_rol.setText("Usuario");
-                registrar_admin.txt_estatus.setText("Vigente");
-                this.setVisible(false); 
-                }        
-            }              
+            if(registro_usuario==null && registro_bitacora==null)
+            {
+                int confirmacion = JOptionPane.showConfirmDialog(null, "<html>El usuario no existe<p>¿Desea crearlo?<html>");
+                if(confirmacion == 0)
+                {
+                    if(registro_usuario == null && registro_bitacora == null)
+                    {
+                     Registro registrar_admin = new Registro();
+                    registrar_admin.show();
+                    registrar_admin.txt_usuario.setText(usuario);
+                    registrar_admin.txt_rol.setText("Usuario");
+                    registrar_admin.txt_estatus.setText("Vigente");
+                    this.setVisible(false); 
+                    }        
+                }            
+            }            
         }
     }
 
@@ -299,8 +319,9 @@ public class Login extends javax.swing.JFrame {
         return false;
     }
     
-    public boolean ValidarCredenciales(String password_ingresada, String password_obtenida){       
-    if(password_ingresada.equals(password_obtenida)) return true;
+    public boolean ValidarCredenciales(String password_ingresada, String password_obtenida){   
+    String password_encriptada = DigestUtils.md5Hex(password_ingresada);
+    if(password_encriptada.equals(password_obtenida)) return true;
      return false;   
     }
     

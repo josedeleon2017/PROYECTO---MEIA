@@ -5,8 +5,11 @@
  */
 package proyecto.meia;
 
+import java.awt.Image;
 import static java.awt.image.ImageObserver.WIDTH;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import javax.swing.JFileChooser;
@@ -16,6 +19,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import org.apache.commons.codec.digest.DigestUtils;
 import java.util.Date;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 
 
@@ -68,7 +73,7 @@ public class Registro extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Century Gothic", 1, 24)); // NOI18N
         jLabel1.setText("REGISTRARSE");
 
         jLabel2.setText("Usuario");
@@ -91,6 +96,7 @@ public class Registro extends javax.swing.JFrame {
 
         jLabel11.setText("Estatus");
 
+        txt_usuario.setEditable(false);
         txt_usuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txt_usuarioActionPerformed(evt);
@@ -102,6 +108,12 @@ public class Registro extends javax.swing.JFrame {
                 txt_nombreActionPerformed(evt);
             }
         });
+
+        txt_rol.setEditable(false);
+
+        txt_fotografia.setEditable(false);
+
+        txt_estatus.setEditable(false);
 
         btn_enviar.setText("GUARDAR");
         btn_enviar.setEnabled(false);
@@ -223,7 +235,7 @@ public class Registro extends javax.swing.JFrame {
                     .addComponent(lbl_password, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(btn_enviar, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(52, Short.MAX_VALUE))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
 
         pack();
@@ -271,62 +283,57 @@ public class Registro extends javax.swing.JFrame {
     private void btn_enviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_enviarActionPerformed
         // TODO add your handling code here:
         //Valida que no esten vacios los campos
-//        if(txt_nombre.getText()!= "" || txt_apellido.getText()!= "" ||txt_fecha_nacimiento.getText()!= ""||txt_telefono.getText()!= ""||txt_usuario.getText()!= ""||txt_fotografia.getText()!= ""||txt_correo.getText()!= ""){
-//            JOptionPane.showMessageDialog(rootPane, "Debe llenar todos los campos","Error", WIDTH);
-//        }
-//        //Valida que no sea mas largo el valor del campo
-//        if(txt_nombre.getText().length()>40){
-//            JOptionPane.showMessageDialog(rootPane, "Se superó el tamaño máximo para el campo","Error", WIDTH);
-//        }
-//        else{
-            //JALAR FOTO / ENCRIPTAR / ESCRIBIR
-            String nombre = txt_nombre.getText();
-            String apellido = txt_apellido.getText();
-                      
+        if(txt_nombre.getText().equals("") || txt_apellido.getText().equals("") || txt_fecha_nacimiento.getText().equals("")||txt_telefono.getText().equals("")||txt_usuario.getText().equals("")||txt_fotografia.getText().equals("")||txt_correo.getText().equals(""))
+        {
+            JOptionPane.showMessageDialog(rootPane, "Debe llenar todos los campos","Error", WIDTH);
+        }
+        //Valida que no sea mas largo el valor del campo
+        if(txt_nombre.getText().length()>40){
+            JOptionPane.showMessageDialog(rootPane, "Se superó el tamaño máximo para el campo","Error", WIDTH);
+        }
+        else{
+            //boolean fecha = EsFecha(txt_fecha_nacimiento.getText());
+            String ImagenGuardada = GuardarImagen(txt_fotografia.getText());
             
-            try
-            {
-                String testDate = "09/09/2000";
-                DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
-                Date date = formatter.parse(testDate);
-            }
-            catch(Exception ex){
+            if(ImagenGuardada!=null){
+                String nombre = txt_nombre.getText();
+                String apellido = txt_apellido.getText();
+
+                int telefono = Integer.valueOf(txt_telefono.getText());
+                String usuario =txt_usuario.getText();
+
+                int rol = 0;      
+                int estatus = 1;
+                if(txt_rol.getText().equals("Usuario")) rol = 0;
+                if(txt_rol.getText().equals("Administrador")) rol = 1;
+
+                String correo = txt_correo.getText();
+                String password = txt_password.getText();
+                String str_fecha = txt_fecha_nacimiento.getText();
                 
-            }
-           
-            
-            int telefono = 0;
-            String usuario ="";
-            String rol ="";
-            String estatus ="";
-            String correo ="";
-            String password ="";
-            
-            
-            
-            
-            
-            
-            
-            
-            boolean ImagenGuardada = GuardarImagen(txt_fotografia.getText());
-            
-            
-           String textoEncriptadoConMD5 = DigestUtils.md5Hex(txt_fotografia.getText()); 
-
-             //ESCRIBIR EN DISCO 
-             
-             //REORGANIZAR
-            
-            //boolean test = Files.copy(txt_fotografia.getText(), path_imgs);
-
-            //Files.copy(origen, destino);
-            
-        //}
-        
-        
-        
-        
+                
+                boolean Guardado = LlenarArchivo(nombre, apellido, telefono, usuario, rol, estatus, correo, password, str_fecha, ImagenGuardada);
+                
+                if(Guardado){                           
+                     //ACTUALIZAR DESCRIPTOR
+                                      
+                    //VERIFICAR REORGANIZACION
+                    //REORGANIZAR SI ES NECESARIO
+                        
+                    JOptionPane.showMessageDialog(rootPane, "GUARDADO EXITOSAMENTE!!!","Error", WIDTH);
+                    Inicio abrir_inicio = new Inicio();
+                    abrir_inicio.lbl_usuario.setText(txt_usuario.getText());
+                    abrir_inicio.lbl_rol.setText(txt_rol.getText());
+                    
+                    ImageIcon photo = new ImageIcon(ImagenGuardada);
+                    Icon img = new ImageIcon(photo.getImage().getScaledInstance(abrir_inicio.lbl_photo.getWidth(), abrir_inicio.lbl_photo.getHeight(), Image.SCALE_DEFAULT));
+                    abrir_inicio.lbl_photo.setIcon(img);
+                    
+                    abrir_inicio.show();
+                    this.setVisible(false);             
+                }
+            }    
+        }    
     }//GEN-LAST:event_btn_enviarActionPerformed
 
     /**
@@ -390,7 +397,7 @@ public class Registro extends javax.swing.JFrame {
       return "<HTML>[ SEGURIDAD: BAJA ]<p>  El password debe tener al menos 10 carcacteres, incluyendo letras y números.<HTML>";
     }
     
-    boolean GuardarImagen(String ruta){
+    String GuardarImagen(String ruta){
         
         File origen = new File(ruta);
    
@@ -406,15 +413,63 @@ public class Registro extends javax.swing.JFrame {
             try
             {
                 Files.copy(origen.toPath(), temporal.toPath(),REPLACE_EXISTING);
-                return true;
+                return path_nuevo;
             }
-            catch(Exception e)
+            catch(Exception ex)
             {
                 JOptionPane.showMessageDialog(rootPane, "Falló la copia de la imagen","Error", WIDTH);
             }
-            return false;
+            return null;
     }
     
+    boolean EsFecha(String date){
+        try
+            {
+                String testDate = date;
+                DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
+                Date date_valido = formatter.parse(testDate);
+                return true;
+            }
+            catch(Exception ex){
+                return false;
+            }
+    }
+    
+    public boolean LlenarArchivo(String nombre,String apellido, int telefono, String usuario, int rol, int estatus, String correo, String password, String fecha, String path_imagen)
+    {
+        File file_bitacora = new File("MEIA\\bitacora_usuario.txt");
+        
+        //NORMALIZAR ENTRADAS
+        String password_encriptada = DigestUtils.md5Hex(password); 
+                
+        String f_usuario = String.format("%-20s", usuario);        
+        String f_nombre = String.format("%-30s", nombre);
+        String f_apellido = String.format("%-30s", apellido);
+        String f_password = String.format("%-40s", password_encriptada);
+        String f_rol = String.format("%-3s", String.valueOf(rol));
+        String f_fecha = String.format("%-16s", fecha);
+        String f_correo = String.format("%-40s", correo);
+        String f_telefono = String.format("%-9s", telefono);
+        String f_path_imagen = String.format("%-200s", path_imagen);
+        String f_estatus = String.format("%-7s", String.valueOf(estatus)); 
+         
+        String registro = f_usuario+"|"+f_nombre+"|"+f_apellido+"|"+f_password+"|"+f_rol+"|"+f_fecha+"|"+f_correo+"|"+f_telefono+"|"+f_path_imagen+"|"+f_estatus;
+   
+        try
+        {
+                FileWriter Escribir = new FileWriter(file_bitacora,true);
+                BufferedWriter bw = new BufferedWriter(Escribir);
+                bw.write(registro+ System.getProperty( "line.separator" ));
+                bw.close();
+                Escribir.close();             
+                return true;
+        }
+        catch(Exception ex)
+        {
+            return false;
+        } 
+        
+    }
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

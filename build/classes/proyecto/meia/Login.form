@@ -62,7 +62,7 @@
               <Component id="txt_password" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
               <Component id="btn_Entrar" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="60" max="32767" attributes="0"/>
+              <EmptySpace pref="52" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -85,7 +85,7 @@
     <Component class="javax.swing.JLabel" name="lbl_login">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Century Gothic" size="18" style="1"/>
+          <Font name="Century Gothic" size="24" style="1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="LOGIN"/>
       </Properties>
