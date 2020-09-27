@@ -5,6 +5,20 @@
  */
 package proyecto.meia;
 
+import static java.awt.image.ImageObserver.WIDTH;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import static java.nio.file.StandardCopyOption.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import org.apache.commons.codec.digest.DigestUtils;
+import java.util.Date;
+
+
+
 /**
  *
  * @author José De León
@@ -41,15 +55,16 @@ public class Registro extends javax.swing.JFrame {
         txt_usuario = new javax.swing.JTextField();
         txt_nombre = new javax.swing.JTextField();
         txt_apellido = new javax.swing.JTextField();
-        txt_password = new javax.swing.JTextField();
         txt_rol = new javax.swing.JTextField();
         txt_fecha_nacimiento = new javax.swing.JTextField();
         txt_correo = new javax.swing.JTextField();
         txt_telefono = new javax.swing.JTextField();
         txt_fotografia = new javax.swing.JTextField();
         txt_estatus = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        btn_enviar = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        lbl_password = new javax.swing.JLabel();
+        txt_password = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -76,7 +91,6 @@ public class Registro extends javax.swing.JFrame {
 
         jLabel11.setText("Estatus");
 
-        txt_usuario.setEditable(false);
         txt_usuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txt_usuarioActionPerformed(evt);
@@ -89,63 +103,77 @@ public class Registro extends javax.swing.JFrame {
             }
         });
 
-        txt_rol.setEditable(false);
-
-        txt_estatus.setEditable(false);
-
-        jButton1.setText("jButton1");
+        btn_enviar.setText("GUARDAR");
+        btn_enviar.setEnabled(false);
+        btn_enviar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_enviarActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Buscar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        lbl_password.setFont(new java.awt.Font("Tahoma", 1, 8)); // NOI18N
+
+        txt_password.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_passwordKeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(108, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel10)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel7)
-                    .addComponent(txt_apellido, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
-                    .addComponent(txt_fecha_nacimiento)
-                    .addComponent(txt_telefono)
-                    .addComponent(txt_nombre)
-                    .addComponent(txt_fotografia)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(117, 117, 117)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel11)
-                    .addComponent(txt_estatus, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel2)
-                        .addComponent(txt_usuario)
-                        .addComponent(jLabel6)
-                        .addComponent(txt_rol, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel8)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(txt_password)
-                        .addComponent(txt_correo, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(112, 112, 112))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(309, 309, 309)
-                        .addComponent(jLabel1))
+                        .addGap(108, 108, 108)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel10)
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel7)
+                            .addComponent(txt_apellido, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                            .addComponent(txt_fecha_nacimiento)
+                            .addComponent(txt_telefono)
+                            .addComponent(txt_nombre)
+                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txt_fotografia))
+                        .addGap(158, 158, 158)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel11)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel8)
+                            .addComponent(txt_correo)
+                            .addComponent(txt_usuario)
+                            .addComponent(txt_rol)
+                            .addComponent(txt_estatus)
+                            .addComponent(txt_password)
+                            .addComponent(lbl_password, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(265, 265, 265)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(179, 179, 179)
+                        .addComponent(btn_enviar, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(107, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(333, 333, 333))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(33, 33, 33)
+                .addGap(34, 34, 34)
                 .addComponent(jLabel1)
-                .addGap(26, 26, 26)
+                .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
@@ -188,12 +216,14 @@ public class Registro extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txt_password, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(txt_password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton2)
+                    .addComponent(lbl_password, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(35, Short.MAX_VALUE))
+                .addComponent(btn_enviar, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(52, Short.MAX_VALUE))
         );
 
         pack();
@@ -206,6 +236,98 @@ public class Registro extends javax.swing.JFrame {
     private void txt_usuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_usuarioActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_usuarioActionPerformed
+
+    private void txt_passwordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_passwordKeyReleased
+        // TODO add your handling code here:
+        String password = txt_password.getText();
+        
+        if(EsSegura(password)){
+            lbl_password.setText(DescripcionSeguridad(password));
+            btn_enviar.setEnabled(true);
+            evt.consume();
+        }else{
+            lbl_password.setText(DescripcionSeguridad(password));
+            btn_enviar.setEnabled(false);
+            evt.consume();
+        }
+    }//GEN-LAST:event_txt_passwordKeyReleased
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        JFileChooser ventana = new JFileChooser();
+        
+        File fichero;
+        String ruta;
+        
+        int valor = ventana.showOpenDialog(this);
+        if(valor == JFileChooser.APPROVE_OPTION){
+            fichero = ventana.getSelectedFile();
+            ruta = fichero.getAbsolutePath();
+            
+            txt_fotografia.setText(ruta);
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void btn_enviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_enviarActionPerformed
+        // TODO add your handling code here:
+        //Valida que no esten vacios los campos
+//        if(txt_nombre.getText()!= "" || txt_apellido.getText()!= "" ||txt_fecha_nacimiento.getText()!= ""||txt_telefono.getText()!= ""||txt_usuario.getText()!= ""||txt_fotografia.getText()!= ""||txt_correo.getText()!= ""){
+//            JOptionPane.showMessageDialog(rootPane, "Debe llenar todos los campos","Error", WIDTH);
+//        }
+//        //Valida que no sea mas largo el valor del campo
+//        if(txt_nombre.getText().length()>40){
+//            JOptionPane.showMessageDialog(rootPane, "Se superó el tamaño máximo para el campo","Error", WIDTH);
+//        }
+//        else{
+            //JALAR FOTO / ENCRIPTAR / ESCRIBIR
+            String nombre = txt_nombre.getText();
+            String apellido = txt_apellido.getText();
+                      
+            
+            try
+            {
+                String testDate = "09/09/2000";
+                DateFormat formatter = new SimpleDateFormat("dd-mm-yyyy");
+                Date date = formatter.parse(testDate);
+            }
+            catch(Exception ex){
+                
+            }
+           
+            
+            int telefono = 0;
+            String usuario ="";
+            String rol ="";
+            String estatus ="";
+            String correo ="";
+            String password ="";
+            
+            
+            
+            
+            
+            
+            
+            
+            boolean ImagenGuardada = GuardarImagen(txt_fotografia.getText());
+            
+            
+           String textoEncriptadoConMD5 = DigestUtils.md5Hex(txt_fotografia.getText()); 
+
+             //ESCRIBIR EN DISCO 
+             
+             //REORGANIZAR
+            
+            //boolean test = Files.copy(txt_fotografia.getText(), path_imgs);
+
+            //Files.copy(origen, destino);
+            
+        //}
+        
+        
+        
+        
+    }//GEN-LAST:event_btn_enviarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -242,8 +364,61 @@ public class Registro extends javax.swing.JFrame {
         });
     }
 
+    boolean EsSegura(String password){
+        //Validacion nivel 1, contiene numeros y letras (length 10)
+      String validacion_nivel1 = "(?=.*[0-9])(?=.*[a-z]).{10,}";
+      //Validacion nivel 2, contiene numeros, letras, mayuculas y caracteres especiales (length 10)
+      String validacion_nivel2 = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{10,}";
+      
+      if(password.matches(validacion_nivel2)) return true;
+      if(password.matches(validacion_nivel1)) return true;
+      
+      //No cumple con ningun criterio
+      return false;
+    }
+    
+    String DescripcionSeguridad(String password){
+        //Validacion nivel 1, contiene numeros y letras (length 10)
+      String validacion_nivel1 = "(?=.*[0-9])(?=.*[a-z]).{10,}";
+      //Validacion nivel 2, contiene numeros, letras, mayuculas y caracteres especiales (length 10)
+      String validacion_nivel2 = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{10,}";
+      
+      if(password.matches(validacion_nivel2)) return "<HTML>[ SEGURIDAD: ALTA ]<p>   El password es de 10 caracteres, contiene letras en mayusculas, letras en minusculas, números y caracteres especiales.<HTML>";
+      if(password.matches(validacion_nivel1)) return "<HTML>[ SEGURIDAD: MEDIA ]<p>   El password es de 10 caracteres, contiene letras y números.<HTML>";
+            
+      //No cumple con ningun criterio
+      return "<HTML>[ SEGURIDAD: BAJA ]<p>  El password debe tener al menos 10 carcacteres, incluyendo letras y números.<HTML>";
+    }
+    
+    boolean GuardarImagen(String ruta){
+        
+        File origen = new File(ruta);
+   
+            int posicion = ruta.lastIndexOf(".");
+            String extension = ruta.substring(posicion);
+            String archivo_nuevo = "MEIA\\img\\"+txt_usuario.getText()+extension;
+            
+            File destino = new File(archivo_nuevo);
+            String path_nuevo = destino.getAbsolutePath();
+            
+            File temporal = new File(path_nuevo);
+                      
+            try
+            {
+                Files.copy(origen.toPath(), temporal.toPath(),REPLACE_EXISTING);
+                return true;
+            }
+            catch(Exception e)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Falló la copia de la imagen","Error", WIDTH);
+            }
+            return false;
+    }
+    
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btn_enviar;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -256,6 +431,7 @@ public class Registro extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel lbl_password;
     private javax.swing.JTextField txt_apellido;
     private javax.swing.JTextField txt_correo;
     public static javax.swing.JTextField txt_estatus;

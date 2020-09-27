@@ -121,7 +121,7 @@ public class Login extends javax.swing.JFrame {
         else
         {
             //Valida si existe en bitacora_usuario        
-        File file_bitacora = new File("MEIA\\bitacora_usuario2.txt");
+        File file_bitacora = new File("MEIA\\bitacora_usuario.txt");
         String path_bitacora = file_bitacora.getAbsolutePath();
         String[] registro_bitacora = ObtenerUser(usuario, path_bitacora, "Error");
         
@@ -142,7 +142,7 @@ public class Login extends javax.swing.JFrame {
         }
         
         //Valida si existe en usuario   
-        File file_usuario = new File("MEIA\\usuario2.txt");
+        File file_usuario = new File("MEIA\\usuario.txt");
         String path_usuario = file_usuario.getAbsolutePath();
         String[] registro_usuario = ObtenerUser(usuario, path_usuario, "Error");
         
@@ -265,6 +265,7 @@ public class Login extends javax.swing.JFrame {
         }
         return null;
     }
+    
     public boolean EstaVacio(String path, String strError){
         File Archivo = new File(path);
         if(Archivo.exists()==true)
@@ -297,6 +298,7 @@ public class Login extends javax.swing.JFrame {
         }
         return false;
     }
+    
     public boolean ValidarCredenciales(String password_ingresada, String password_obtenida){       
     if(password_ingresada.equals(password_obtenida)) return true;
      return false;   
