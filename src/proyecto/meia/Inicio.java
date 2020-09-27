@@ -4,7 +4,14 @@
  * and open the template in the editor.
  */
 package proyecto.meia;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 /**
  *
  * @author José De León
@@ -33,6 +40,7 @@ public class Inicio extends javax.swing.JFrame {
         lbl_photo = new javax.swing.JLabel();
         lbl_usuario = new javax.swing.JLabel();
         lbl_rol = new javax.swing.JLabel();
+        backupButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -51,24 +59,36 @@ public class Inicio extends javax.swing.JFrame {
         lbl_rol.setFont(new java.awt.Font("Century Gothic", 0, 12)); // NOI18N
         lbl_rol.setText("jLabel6");
 
+        backupButton.setText("Crear copia de seguridad");
+        backupButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backupButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(142, 142, 142)
-                .addComponent(lbl_photo, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(46, 46, 46)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3)
-                    .addComponent(lbl_usuario)
-                    .addComponent(lbl_rol))
-                .addContainerGap(176, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addGap(189, 189, 189))
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(142, 142, 142)
+                        .addComponent(lbl_photo, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(46, 46, 46)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3)
+                            .addComponent(lbl_usuario)
+                            .addComponent(lbl_rol)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addComponent(backupButton)))
+                .addContainerGap(176, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -86,11 +106,54 @@ public class Inicio extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(lbl_rol))
                     .addComponent(lbl_photo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(114, Short.MAX_VALUE))
+                .addGap(21, 21, 21)
+                .addComponent(backupButton)
+                .addContainerGap(70, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void backupButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backupButtonActionPerformed
+        JFileChooser ventana = new JFileChooser();
+        ventana.setCurrentDirectory(new java.io.File("."));
+        ventana.setDialogTitle("Seleccione una carpeta donde crear el respaldo de información");
+        ventana.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        ventana.setAcceptAllFileFilterUsed(false);
+        String BackupFolderPath = "";
+   
+        if (ventana.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) 
+        { 
+          BackupFolderPath = ventana.getSelectedFile().getAbsolutePath()+"\\MEIA_Backup";
+          File DirectoryCreator = new File (BackupFolderPath);
+          DirectoryCreator.mkdir();
+        }  
+        File DataDirectory = new File("MEIA\\");
+        File [] all = DataDirectory.listFiles();
+        for (File data : all)
+        {
+            try
+            {
+            String finalPath = BackupFolderPath + "\\" + data.getName();
+            Path destination = Paths.get(finalPath);
+            Files.copy(Paths.get(data.getAbsolutePath()), destination, StandardCopyOption.REPLACE_EXISTING);
+            }
+            catch(IOException e){}
+        }
+        File ImgDirectory = new File ("MEIA\\img");
+        File [] allPics = ImgDirectory.listFiles();
+        BackupFolderPath += "\\img";
+        for (File picture : allPics)
+        {
+            try
+            {
+                String finalPicPath = BackupFolderPath + "\\" + picture.getName();
+                Path PictureDestination = Paths.get(finalPicPath);
+                Files.copy(Paths.get(picture.getAbsolutePath()), PictureDestination, StandardCopyOption.REPLACE_EXISTING);
+            }
+            catch (IOException d) {}
+        }
+    }//GEN-LAST:event_backupButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -128,6 +191,7 @@ public class Inicio extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton backupButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
