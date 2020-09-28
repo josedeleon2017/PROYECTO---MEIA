@@ -102,6 +102,8 @@ public class Login extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    
     private void btn_EntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_EntrarActionPerformed
         // TODO add your handling code here:
         String usuario = txt_usuario.getText();
@@ -138,7 +140,6 @@ public class Login extends javax.swing.JFrame {
                     String rol = "Usuario";
                     if(registro_bitacora[4].trim().equals("1")) rol = "Administrador";
                     abrir_inicio.lbl_rol.setText(rol);        
-                    
                     ImageIcon photo = new ImageIcon(registro_bitacora[8]);
                     Icon img = new ImageIcon(photo.getImage().getScaledInstance(abrir_inicio.lbl_photo.getWidth(), abrir_inicio.lbl_photo.getHeight(), Image.SCALE_DEFAULT));
                     abrir_inicio.lbl_photo.setIcon(img);

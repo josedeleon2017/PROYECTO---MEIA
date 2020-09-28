@@ -4,14 +4,22 @@
  * and open the template in the editor.
  */
 package proyecto.meia;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import static java.lang.Integer.parseInt;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 /**
  *
  * @author José De León
@@ -113,7 +121,109 @@ public class Inicio extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    public void CrearDescriptorBackup(String usuario)
+    {
+        try
+        {
+        File file_descriptorBackup = new File("MEIA\\desc_bitacora_backup.txt");
+        Date currentTime = new Date();
+        String[] lines = {"nombre_simbolico:bitacora_backup", "fecha_creacion:" + currentTime.toString(),"usuario_creacion:"+ usuario,"fecha_modificacion:" + currentTime.toString(),"usuario_modificacion:"+usuario,"#_registros:1"};
+        FileWriter LineWriter = new FileWriter(file_descriptorBackup, true);
+        BufferedWriter LineWr = new BufferedWriter(LineWriter);
+        for (int i = 0; i < lines.length; i++)
+        {
+            LineWr.write(lines[i]);
+            if (i != lines.length - 1)
+            {
+            LineWr.newLine();
+            }
+        }
+        LineWr.close();
+        LineWriter.close();
+        } catch (IOException F) {}
+    }
+    
+    public void ActualizarDescriptorBackup(String usuario)
+    {
+        try{
+            File file_descriptorBackup = new File("MEIA\\desc_bitacora_backup.txt");
+            Date now = new Date();
+            ArrayList<String> lines = new ArrayList<>(Files.readAllLines(Paths.get(file_descriptorBackup.getAbsolutePath())));
+            lines.set(3, "fecha_modificacion:" + now.toString());
+            lines.set(4, "usuario_modificacion:" + usuario);
+            String[] arrOfStr = lines.get(5).split(":"); 
+            int entries = parseInt(arrOfStr[1]) + 1;
+            lines.set(5, "#_registros:" + entries);
+            
+            FileWriter Changer = new FileWriter(file_descriptorBackup, false);
+            BufferedWriter LineChanger = new BufferedWriter(Changer);
+            for (int i = 0; i < lines.size(); i++)
+            {
+                LineChanger.write(lines.get(i));
+                if (i != lines.size() - 1)
+                {
+                    LineChanger.newLine();
+                }
+            }
+            LineChanger.close();
+            LineChanger.close(); 
+            
+        }catch(IOException ex){}
+    }
+    
+    public boolean LlenarArchivoBackup (String rutaAbsoluta,String usuario, String fecha)
+    {
+        File file_bitacoraBackup = new File("MEIA\\bitacora_backup.txt");
+        File file_desc_backup = new File ("MEIA\\desc_bitacora_backup.txt");
 
+        String f_usuario = String.format("%-20s", usuario);        
+        String f_path = String.format("%-200s", rutaAbsoluta);
+        String f_fecha = String.format("%-16s", fecha);
+        if (!file_bitacoraBackup.exists())
+        {
+            //No existe la bitácora, por tanto hay que crearla con los headers
+            String ruta_header = String.format("%-200s", "ruta_absoluta");
+            String usuario_header = String.format("%-20s", "usuario");
+            String fecha_header = String.format("%-16s", "fecha_transaccion");
+            String header = ruta_header+"|"+usuario_header+"|"+fecha_header;
+            try
+            {
+                FileWriter HeaderWriter = new FileWriter(file_bitacoraBackup, true);
+                BufferedWriter Headerb = new BufferedWriter(HeaderWriter);
+                Headerb.write(header + System.getProperty( "line.separator" ));
+                Headerb.close();
+                HeaderWriter.close();
+            }catch(IOException ff){}
+        }
+        if (!file_desc_backup.exists()) 
+        {
+            //No existe el descriptor, por tanto hay que crearlo con los datos iniciales
+            CrearDescriptorBackup(lbl_usuario.getText());
+        }
+        else
+        {
+            //Si hay descriptor, hay que actualizarlo.
+            ActualizarDescriptorBackup(lbl_usuario.getText());
+        }
+        String registro = f_path+"|"+f_usuario+"|"+f_fecha;
+        try
+        {
+            // Esto escribe un registro en la bitácora de backup
+                FileWriter Escribir = new FileWriter(file_bitacoraBackup, true);
+                BufferedWriter bw = new BufferedWriter(Escribir);
+                bw.write(registro+ System.getProperty( "line.separator" ));
+                bw.close();
+                Escribir.close();             
+                return true;
+        }
+        catch(Exception ex)
+        {
+            return false;
+        } 
+        
+    }
+    
+    
     private void backupButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backupButtonActionPerformed
         JFileChooser ventana = new JFileChooser();
         ventana.setCurrentDirectory(new java.io.File("."));
@@ -121,15 +231,19 @@ public class Inicio extends javax.swing.JFrame {
         ventana.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         ventana.setAcceptAllFileFilterUsed(false);
         String BackupFolderPath = "";
+        String DestinationFolder = "";
    
         if (ventana.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) 
         { 
           BackupFolderPath = ventana.getSelectedFile().getAbsolutePath()+"\\MEIA_Backup";
+          DestinationFolder = BackupFolderPath;
           File DirectoryCreator = new File (BackupFolderPath);
           DirectoryCreator.mkdir();
         }  
         File DataDirectory = new File("MEIA\\");
         File [] all = DataDirectory.listFiles();
+        Date currentDate = new Date();
+        LlenarArchivoBackup(DestinationFolder, lbl_usuario.getText(), currentDate.toString());
         for (File data : all)
         {
             try
@@ -153,6 +267,13 @@ public class Inicio extends javax.swing.JFrame {
             }
             catch (IOException d) {}
         }
+        JOptionPane.showMessageDialog(rootPane, "BACKUP EXITOSO","Error", WIDTH);
+
+        
+        
+        
+        
+        
     }//GEN-LAST:event_backupButtonActionPerformed
 
     /**
@@ -185,13 +306,15 @@ public class Inicio extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Inicio().setVisible(true);
+                Inicio I = new Inicio();
+                I.setVisible(true);
+                I.setLocationRelativeTo(null);
             }
         });            
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton backupButton;
+    public javax.swing.JButton backupButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
