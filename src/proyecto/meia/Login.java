@@ -133,7 +133,7 @@ public class Login extends javax.swing.JFrame {
         String[] registro_bitacora = ObtenerUser(usuario, path_bitacora, "Error");
         
         if(registro_bitacora != null){
-            if(ValidarCredenciales(password, registro_bitacora[3].trim()))
+            if(ValidarCredenciales(password, registro_bitacora[3].trim()) && !registro_bitacora[9].equals("0"))
                 {
                     Inicio abrir_inicio = new Inicio();
                     abrir_inicio.lbl_usuario.setText(registro_bitacora[0]);
@@ -158,7 +158,7 @@ public class Login extends javax.swing.JFrame {
         String[] registro_usuario = ObtenerUser(usuario, path_usuario, "Error");
         
         if(registro_usuario != null){
-            if(ValidarCredenciales(password, registro_usuario[3].trim()))
+            if(ValidarCredenciales(password, registro_usuario[3].trim())&& !registro_usuario[9].equals("0"))
                 {
                     Inicio abrir_inicio = new Inicio();
                     abrir_inicio.lbl_usuario.setText(registro_usuario[0]);

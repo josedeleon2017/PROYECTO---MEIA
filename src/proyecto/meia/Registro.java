@@ -7,16 +7,22 @@ package proyecto.meia;
 
 import java.awt.Image;
 import static java.awt.image.ImageObserver.WIDTH;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import static java.nio.file.StandardCopyOption.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.apache.commons.codec.digest.DigestUtils;
 import java.util.Date;
 import javax.swing.Icon;
@@ -309,16 +315,44 @@ public class Registro extends javax.swing.JFrame {
 
                 String correo = txt_correo.getText();
                 String password = txt_password.getText();
-                String str_fecha = txt_fecha_nacimiento.getText();
+                String fecha = txt_fecha_nacimiento.getText();
                 
+                String[] registro = new String[10];
+                registro[0]= usuario;
+                registro[1]= nombre;
+                registro[2]= apellido;
+                registro[3]= password;
+                registro[4]= String.valueOf(rol);
+                registro[5]= fecha;
+                registro[6]= correo;
+                registro[7]= String.valueOf(telefono);
+                registro[8]= ImagenGuardada;
+                registro[9]= String.valueOf(estatus);
+                String path_bitacora = "MEIA\\bitacora_usuario.txt";
                 
-                boolean Guardado = LlenarArchivo(nombre, apellido, telefono, usuario, rol, estatus, correo, password, str_fecha, ImagenGuardada);
+                boolean Guardado = LlenarArchivo(registro, path_bitacora);
                 
                 if(Guardado){                           
                      //ACTUALIZAR DESCRIPTOR
                                       
                     //VERIFICAR REORGANIZACION
-                    //REORGANIZAR SI ES NECESARIO
+                    File file_desc_bitacora = new File("MEIA\\desc_bitacora_usuario.txt");
+                    String path_desc_bitacora = file_desc_bitacora.getAbsolutePath();
+                    
+                    
+                    int registros_bitacora = ObtenerDato(path_desc_bitacora, 7);                     
+                    int max_reorganizacion = ObtenerDato(path_desc_bitacora, 9);
+                    
+                    if(registros_bitacora == max_reorganizacion)
+                    {
+                        //REORGANIZAR SI ES NECESARIO
+                        File file_usuario = new File("MEIA\\usuario.txt");
+                        String path_usuario = file_usuario.getAbsolutePath();
+                        Reorganizar(path_usuario, path_bitacora);
+                    }
+
+                    
+                    
                         
                     JOptionPane.showMessageDialog(rootPane, "GUARDADO EXITOSAMENTE!!!","Error", WIDTH);
                     Inicio abrir_inicio = new Inicio();
@@ -435,23 +469,22 @@ public class Registro extends javax.swing.JFrame {
             }
     }
     
-    public boolean LlenarArchivo(String nombre,String apellido, int telefono, String usuario, int rol, int estatus, String correo, String password, String fecha, String path_imagen)
+    public boolean LlenarArchivo(String[] resgitro, String path)
     {
-        File file_bitacora = new File("MEIA\\bitacora_usuario.txt");
-        
+        File file_bitacora = new File(path);    
         //NORMALIZAR ENTRADAS
-        String password_encriptada = DigestUtils.md5Hex(password); 
+        String password_encriptada = DigestUtils.md5Hex(resgitro[3]); 
                 
-        String f_usuario = String.format("%-20s", usuario);        
-        String f_nombre = String.format("%-30s", nombre);
-        String f_apellido = String.format("%-30s", apellido);
+        String f_usuario = String.format("%-20s", resgitro[0]);        
+        String f_nombre = String.format("%-30s", resgitro[1]);
+        String f_apellido = String.format("%-30s", resgitro[2]);
         String f_password = String.format("%-40s", password_encriptada);
-        String f_rol = String.format("%-3s", String.valueOf(rol));
-        String f_fecha = String.format("%-16s", fecha);
-        String f_correo = String.format("%-40s", correo);
-        String f_telefono = String.format("%-9s", telefono);
-        String f_path_imagen = String.format("%-200s", path_imagen);
-        String f_estatus = String.format("%-7s", String.valueOf(estatus)); 
+        String f_rol = String.format("%-3s", resgitro[4]);
+        String f_fecha = String.format("%-16s", resgitro[5]);
+        String f_correo = String.format("%-40s", resgitro[6]);
+        String f_telefono = String.format("%-9s", resgitro[7]);
+        String f_path_imagen = String.format("%-200s", resgitro[8]);
+        String f_estatus = String.format("%-7s", resgitro[9]); 
          
         String registro = f_usuario+"|"+f_nombre+"|"+f_apellido+"|"+f_password+"|"+f_rol+"|"+f_fecha+"|"+f_correo+"|"+f_telefono+"|"+f_path_imagen+"|"+f_estatus;
    
@@ -467,8 +500,178 @@ public class Registro extends javax.swing.JFrame {
         catch(Exception ex)
         {
             return false;
-        } 
+        }       
+    }
+    
+    int ObtenerDato(String path, int posicion){
+        int activos =0 ;
+        try
+        {
+            //longitud de linea 42 contando \r\n
+            RandomAccessFile archivo = new RandomAccessFile(path, "rw");
+            int inicio =((posicion-1)*40)+4;
+            archivo.seek(inicio);
+            byte[] test = new byte[42];           
+            archivo.read(test, 0, test.length);
+            String linea = new String(test);
+            String[] dato = linea.split(":");
+            activos = Integer.valueOf(dato[1].trim());
+        }
+        catch(Exception ex){
+            
+        }      
+        return activos;
+    }
+    
+    
+    void Reorganizar(String path_master, String path_bitacora){
+        String[] llaves_master = ObtenerLlavesActivas(path_master,"Error");
+        String[] llaves_bitacora = ObtenerLlavesActivas(path_bitacora,"Error");
+        String[] llaves_totales = new String[ llaves_master.length + llaves_bitacora.length ];
         
+        System.arraycopy( llaves_master, 0, llaves_totales, 0, llaves_master.length );
+        System.arraycopy( llaves_bitacora, 0, llaves_totales, llaves_master.length, llaves_bitacora.length );
+        
+        //String[] llaves_totales = (String[])ArraysUtils.addAll(llaves_bitacora, llaves_master);
+         Arrays.sort(llaves_totales);
+        
+        //CREAR ARCHIVO TEMPORAL
+        File file_temporal = new File("MEIA\\temporal.txt");
+        
+        try
+        {
+            if (!file_temporal.exists())
+            {
+                file_temporal.createNewFile();
+            }
+            
+                FileWriter Escribir = new FileWriter(file_temporal,true);
+                BufferedWriter bw = new BufferedWriter(Escribir);
+                String encabezado = "usuario             |nombre                        |apellido                      |password                                |rol|fecha_nacimiento|correo_alterno                          |telefono |path                                                                                                                                                                                                    |estatus";
+                bw.write(encabezado+ System.getProperty( "line.separator" ));
+                bw.close();
+                Escribir.close(); 
+                
+            for (int i = 0; i < llaves_totales.length; i++) {
+               String[] registro_valido = ObtenerUser(llaves_totales[i],"MEIA\\bitacora_usuario.txt","Error");
+               if(registro_valido == null) registro_valido = ObtenerUser(llaves_totales[i],"MEIA\\usuario.txt","Error");
+               
+               LlenarArchivo(registro_valido, "MEIA\\temporal.txt");    
+            }          
+            
+            ///PENDIENTE HACER FUNCIONAR //////////////////////////////////////////////////////////////////////////////////////////
+            //delete bitacora y master
+            File file_bitacora = new File("MEIA\\bitacora_usuario.txt");      
+            File file_usuario = new File("MEIA\\usuario.txt");
+            
+            
+            file_bitacora.delete();
+            file_usuario.delete();
+            
+            //rename temporal
+                
+            File antiguo = new File("MEIA\\temporal.txt");
+                File nuevo = new File("MEIA\\usuario.txt");
+                
+            if(antiguo.renameTo(nuevo))
+            {
+            //create bitacora con encabezado
+            File file_bitacora_nuevo = new File("MEIA\\bitacora_usuario.txt");
+            FileWriter Escribir2 = new FileWriter(file_bitacora_nuevo,true);
+            BufferedWriter bw2 = new BufferedWriter(Escribir2);                
+            bw2.write(encabezado+ System.getProperty( "line.separator" ));
+            bw2.close();
+            Escribir.close(); 
+            }    
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+        }
+        catch(Exception ex)
+        {
+            
+        }      
+    }
+    
+    
+    String[] ObtenerLlavesActivas(String path, String strError){
+        ArrayList<String> llaves = new ArrayList<String>();
+        File Archivo = new File(path);
+        if(Archivo.exists()==true)
+        {
+            FileReader LecturaArchivo;
+            try {
+                LecturaArchivo = new FileReader(Archivo);
+                BufferedReader LeerArchivo = new BufferedReader(LecturaArchivo);
+                String Linea="";
+                try {
+                    Linea = LeerArchivo.readLine();
+                    String[] split;
+                    while(Linea != null)
+                    {
+                        if(!"".equals(Linea))
+                        {
+                            split = Linea.split("\\|");
+                            String estatus = split[9].trim();
+                            if(estatus.equals("1")) llaves.add(split[0].trim());
+                        }
+                        Linea = LeerArchivo.readLine();
+                    }
+
+                    LecturaArchivo.close();
+                    LeerArchivo.close();              
+                } catch (IOException ex) {
+                    strError= ex.getMessage();
+                }
+            } catch (FileNotFoundException ex) {
+                strError = ex.getMessage();
+            }            
+        }
+        else
+        {
+            strError="No existe el archivo";
+        }
+        String[] result = new String[llaves.size()];
+        result = llaves.toArray(result);
+        return result;  
+    }
+    
+    public String[] ObtenerUser(String user, String path, String strError){
+        File Archivo = new File(path);
+        if(Archivo.exists()==true)
+        {
+            FileReader LecturaArchivo;
+            try {
+                LecturaArchivo = new FileReader(Archivo);
+                BufferedReader LeerArchivo = new BufferedReader(LecturaArchivo);
+                String Linea="";
+                try {
+                    Linea = LeerArchivo.readLine();
+                    String[] split;
+                    while(Linea != null)
+                    {
+                        if(!"".equals(Linea))
+                        {
+                            split = Linea.split("\\|");
+                            String current_user = split[0];
+                            if(user.equals(current_user.trim())) return split;
+                        }
+                        Linea = LeerArchivo.readLine();
+                    }
+
+                    LecturaArchivo.close();
+                    LeerArchivo.close();              
+                } catch (IOException ex) {
+                    strError= ex.getMessage();
+                }
+            } catch (FileNotFoundException ex) {
+                strError= ex.getMessage();
+            }            
+        }
+        else
+        {
+            strError="No existe el archivo";
+        }
+        return null;
     }
     
     
